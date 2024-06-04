@@ -2,10 +2,12 @@ package org.mythicmc.flextape
 
 import com.google.inject.Inject
 import com.velocitypowered.api.event.Subscribe
+import com.velocitypowered.api.event.command.CommandExecuteEvent
 import com.velocitypowered.api.event.player.KickedFromServerEvent
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent
 import com.velocitypowered.api.plugin.Plugin
 import com.velocitypowered.api.plugin.annotation.DataDirectory
+import com.velocitypowered.api.proxy.Player
 import com.velocitypowered.api.proxy.ProxyServer
 import org.slf4j.Logger
 import java.nio.file.Path
@@ -52,5 +54,24 @@ class FlexTape @Inject constructor(
         event.result = KickedFromServerEvent
             .DisconnectPlayer
             .create(event.serverKickReason.get())
+    }
+
+    /* @Subscribe
+    fun onPostCommandInvocation(event: PostCommandInvocationEvent) {
+        if (event.result == CommandResult.FORWARDED) return
+        val commandSource = event.commandSource
+        val name = if (commandSource is Player) commandSource.username else "CONSOLE"
+        logger.info("$name executed command: /${event.command}")
+    } */
+
+    @Subscribe
+    fun onCommandExecute(event: CommandExecuteEvent) {
+        if (event.result.isForwardToServer) return
+        val commandSource = event.commandSource
+        val command = event.command.split(" ").first()
+        if (server.commandManager.hasCommand(command, commandSource)) {
+            val name = if (commandSource is Player) commandSource.username else "CONSOLE"
+            logger.info("$name executed command: /${event.command}")
+        }
     }
 }
