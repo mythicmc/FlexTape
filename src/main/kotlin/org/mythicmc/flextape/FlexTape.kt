@@ -71,7 +71,8 @@ class FlexTape @Inject constructor(
         val command = event.command.split(" ").first()
         if (server.commandManager.hasCommand(command, commandSource)) {
             val name = if (commandSource is Player) commandSource.username else "CONSOLE"
-            logger.info("$name executed command: /${event.command}")
+            // [connected player] PLAYER (/IP:PORT) -> executed command COMMAND
+            println("[connected player] $name executed command: /${event.command}")
         }
     }
 }
